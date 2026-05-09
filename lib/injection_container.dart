@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data/datasources/local/halo_local_datasource.dart';
 import 'data/repositories/contact_repository_impl.dart';
@@ -7,10 +8,18 @@ import 'domain/usecases/get_contact.dart';
 import 'domain/usecases/get_contacts.dart';
 import 'domain/usecases/get_suggestions.dart';
 import 'presentation/bloc/halo_bloc.dart';
+import 'presentation/bloc/settings_cubit.dart';
 
 final sl = GetIt.instance;
 
-void initDependencies() {
+Future<void> initDependencies() async {
+  // External
+  final prefs = await SharedPreferences.getInstance();
+  sl.registerLazySingleton<SharedPreferences>(() => prefs);
+
+  // Settings
+  sl.registerLazySingleton(() => SettingsCubit(sl())..loadSettings());
+
   // Bloc — factory so each creation gets a fresh instance
   sl.registerFactory(
     () => HaloBloc(
