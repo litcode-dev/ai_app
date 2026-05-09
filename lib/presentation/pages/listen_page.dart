@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/theme/colors.dart';
+import '../../core/theme/halo_theme.dart';
 import '../bloc/halo_bloc.dart';
 import '../bloc/halo_event.dart';
 import '../bloc/halo_state.dart';
@@ -52,6 +53,7 @@ class _ListenPageState extends State<ListenPage> {
     return BlocBuilder<HaloBloc, HaloState>(
       builder: (context, state) {
         final accent = getAccent(state.accent);
+        final t = Theme.of(context).extension<HaloTheme>()!;
         return Column(
           children: [
             Padding(
@@ -69,7 +71,7 @@ class _ListenPageState extends State<ListenPage> {
                               fontSize: 13,
                               color: settings.voiceEnabled
                                   ? accent.line
-                                  : Colors.white.withValues(alpha: 0.4),
+                                  : t.muted(0.4),
                               letterSpacing: 1.4,
                               fontWeight: FontWeight.w500,
                             ),
@@ -112,9 +114,9 @@ class _ListenPageState extends State<ListenPage> {
                     constraints: const BoxConstraints(minHeight: 86),
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.04),
+                      color: t.cardSurface,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                      border: Border.all(color: t.borderColor),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +127,7 @@ class _ListenPageState extends State<ListenPage> {
                             style: GoogleFonts.inter(
                               fontSize: 15,
                               height: 1.45,
-                              color: Colors.white.withValues(alpha: 0.92),
+                              color: t.muted(0.92),
                             ),
                           ),
                         ),
@@ -144,6 +146,7 @@ class _ListenPageState extends State<ListenPage> {
                               .add(const NavigateToScreen(HaloScreen.home)),
                           isPrimary: false,
                           accent: accent,
+                          t: t,
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -156,6 +159,7 @@ class _ListenPageState extends State<ListenPage> {
                               .add(const NavigateToScreen(HaloScreen.note)),
                           isPrimary: true,
                           accent: accent,
+                          t: t,
                         ),
                       ),
                     ],
@@ -217,12 +221,14 @@ class _Button extends StatelessWidget {
   final VoidCallback onTap;
   final bool isPrimary;
   final AccentColors accent;
+  final HaloTheme t;
 
   const _Button({
     required this.label,
     required this.onTap,
     required this.isPrimary,
     required this.accent,
+    required this.t,
   });
 
   @override
@@ -232,9 +238,9 @@ class _Button extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isPrimary ? accent.solid : Colors.white.withValues(alpha: 0.06),
+          color: isPrimary ? accent.solid : t.cardSurface,
           borderRadius: BorderRadius.circular(999),
-          border: isPrimary ? null : Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          border: isPrimary ? null : Border.all(color: t.borderColor),
           boxShadow: isPrimary
               ? [BoxShadow(color: accent.glow, blurRadius: 24, offset: const Offset(0, 6))]
               : null,
@@ -245,7 +251,7 @@ class _Button extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 15,
               fontWeight: isPrimary ? FontWeight.w600 : FontWeight.w500,
-              color: isPrimary ? kOnAccent : Colors.white,
+              color: isPrimary ? kOnAccent : t.onSurface,
             ),
           ),
         ),
