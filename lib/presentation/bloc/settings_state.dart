@@ -15,6 +15,7 @@ class SettingsState extends Equatable {
   final bool notificationsEnabled;
   final TimeOfDay quietHoursStart;
   final TimeOfDay quietHoursEnd;
+  final bool darkModeEnabled;
 
   const SettingsState({
     required this.profileName,
@@ -26,17 +27,20 @@ class SettingsState extends Equatable {
     required this.notificationsEnabled,
     required this.quietHoursStart,
     required this.quietHoursEnd,
+    required this.darkModeEnabled,
   });
 
   factory SettingsState.initial() => const SettingsState(
-    profileName: 'You',
-    profileTagline: 'Relationship intelligence',
-    suggestionsEnabled: true,
-    voiceEnabled: true,
-    tone: ResponseTone.balanced,
+    profileName:          'You',
+    profileTagline:       'Relationship intelligence',
+    profileAvatarPath:    null,
+    suggestionsEnabled:   true,
+    voiceEnabled:         true,
+    tone:                 ResponseTone.balanced,
     notificationsEnabled: true,
-    quietHoursStart: TimeOfDay(hour: 22, minute: 0),
-    quietHoursEnd: TimeOfDay(hour: 7, minute: 0),
+    quietHoursStart:      TimeOfDay(hour: 22, minute: 0),
+    quietHoursEnd:        TimeOfDay(hour: 7, minute: 0),
+    darkModeEnabled:      true,
   );
 
   SettingsState copyWith({
@@ -49,19 +53,21 @@ class SettingsState extends Equatable {
     bool? notificationsEnabled,
     TimeOfDay? quietHoursStart,
     TimeOfDay? quietHoursEnd,
+    bool? darkModeEnabled,
   }) {
     return SettingsState(
-      profileName: profileName ?? this.profileName,
-      profileTagline: profileTagline ?? this.profileTagline,
-      profileAvatarPath: identical(profileAvatarPath, _kSentinel)
-          ? this.profileAvatarPath
-          : profileAvatarPath as String?,
-      suggestionsEnabled: suggestionsEnabled ?? this.suggestionsEnabled,
-      voiceEnabled: voiceEnabled ?? this.voiceEnabled,
-      tone: tone ?? this.tone,
+      profileName:          profileName          ?? this.profileName,
+      profileTagline:       profileTagline       ?? this.profileTagline,
+      profileAvatarPath:    identical(profileAvatarPath, _kSentinel)
+                              ? this.profileAvatarPath
+                              : profileAvatarPath as String?,
+      suggestionsEnabled:   suggestionsEnabled   ?? this.suggestionsEnabled,
+      voiceEnabled:         voiceEnabled         ?? this.voiceEnabled,
+      tone:                 tone                 ?? this.tone,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
-      quietHoursStart: quietHoursStart ?? this.quietHoursStart,
-      quietHoursEnd: quietHoursEnd ?? this.quietHoursEnd,
+      quietHoursStart:      quietHoursStart      ?? this.quietHoursStart,
+      quietHoursEnd:        quietHoursEnd        ?? this.quietHoursEnd,
+      darkModeEnabled:      darkModeEnabled      ?? this.darkModeEnabled,
     );
   }
 
@@ -76,5 +82,6 @@ class SettingsState extends Equatable {
     notificationsEnabled,
     quietHoursStart,
     quietHoursEnd,
+    darkModeEnabled,
   ];
 }

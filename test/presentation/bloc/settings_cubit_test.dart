@@ -112,4 +112,41 @@ void main() {
       expect(cubit.state.profileAvatarPath, '/img/photo.jpg');
     });
   });
+
+  group('SettingsCubit — dark mode', () {
+    late SharedPreferences prefs;
+    late SettingsCubit cubit;
+
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      prefs = await SharedPreferences.getInstance();
+      cubit = SettingsCubit(prefs);
+    });
+
+    tearDown(() => cubit.close());
+
+    test('darkModeEnabled defaults to true', () {
+      expect(cubit.state.darkModeEnabled, isTrue);
+    });
+
+    test('toggleDarkMode emits false and persists', () {
+      cubit.toggleDarkMode(false);
+      expect(cubit.state.darkModeEnabled, isFalse);
+      expect(prefs.getBool('halo_dark_mode'), isFalse);
+    });
+
+    test('toggleDarkMode emits true and persists', () {
+      cubit.toggleDarkMode(false);
+      cubit.toggleDarkMode(true);
+      expect(cubit.state.darkModeEnabled, isTrue);
+      expect(prefs.getBool('halo_dark_mode'), isTrue);
+    });
+
+    test('loadSettings restores persisted dark mode false', () async {
+      SharedPreferences.setMockInitialValues({'halo_dark_mode': false});
+      prefs = await SharedPreferences.getInstance();
+      cubit = SettingsCubit(prefs)..loadSettings();
+      expect(cubit.state.darkModeEnabled, isFalse);
+    });
+  });
 }

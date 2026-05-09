@@ -23,6 +23,7 @@ class SettingsCubit extends Cubit<SettingsState> {
           const TimeOfDay(hour: 22, minute: 0),
       quietHoursEnd: _parseTime(_prefs.getString('halo_quiet_end')) ??
           const TimeOfDay(hour: 7, minute: 0),
+      darkModeEnabled: _prefs.getBool('halo_dark_mode') ?? true,
     ));
   }
 
@@ -55,6 +56,11 @@ class SettingsCubit extends Cubit<SettingsState> {
   void toggleNotifications(bool value) {
     emit(state.copyWith(notificationsEnabled: value));
     _prefs.setBool('halo_notifications_enabled', value);
+  }
+
+  void toggleDarkMode(bool value) {
+    emit(state.copyWith(darkModeEnabled: value));
+    _prefs.setBool('halo_dark_mode', value);
   }
 
   void setQuietHours(TimeOfDay start, TimeOfDay end) {
