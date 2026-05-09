@@ -10,9 +10,9 @@ A Flutter app that acts as an intelligent relationship manager: brief you before
 |------|--------|------|
 | ![Home](docs/screenshots/home.png) | ![Listen](docs/screenshots/listen.png) | ![Note](docs/screenshots/note.png) |
 
-| People | Contact | Settings |
-|--------|---------|----------|
-| ![People](docs/screenshots/people.png) | ![Contact](docs/screenshots/contact.png) | ![Settings](docs/screenshots/settings.png) |
+| Contact | Confirm | Settings |
+|---------|---------|----------|
+| ![Contact](docs/screenshots/contact.png) | ![Confirm](docs/screenshots/confirm.png) | ![Settings](docs/screenshots/settings.png) |
 
 ---
 
