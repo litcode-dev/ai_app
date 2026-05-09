@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'core/app_keys.dart';
 import 'core/theme/colors.dart';
 import 'core/theme/halo_theme.dart';
 import 'injection_container.dart';
@@ -81,7 +82,9 @@ class _HaloShell extends StatelessWidget {
 
         return Scaffold(
           backgroundColor: t.surface,
-          body: Container(
+          body: RepaintBoundary(
+            key: appShellRepaintKey,
+            child: Container(
             decoration: BoxDecoration(
               gradient: RadialGradient(
                 center: const Alignment(-0.4, -0.6),
@@ -157,6 +160,7 @@ class _HaloShell extends StatelessWidget {
                 ],
               ),
             ),
+          ),
           ),
         );
       },

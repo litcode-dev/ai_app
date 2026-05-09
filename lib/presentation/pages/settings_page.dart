@@ -1,10 +1,14 @@
 import 'dart:io';
+import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../core/app_keys.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/halo_theme.dart';
 import '../bloc/halo_bloc.dart';
@@ -13,8 +17,64 @@ import '../bloc/halo_state.dart';
 import '../bloc/settings_cubit.dart';
 import '../bloc/settings_state.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  final _darkModeRowKey = GlobalKey();
+
+  Future<void> _toggleDarkMode(bool value) async {
+    final rowContext = _darkModeRowKey.currentContext;
+    if (rowContext == null || !mounted) return;
+
+    // Position: right edge of the row (where the switch sits)
+    final box = rowContext.findRenderObject() as RenderBox;
+    final origin = box.localToGlobal(Offset(box.size.width - 20, box.size.height / 2));
+
+    // Capture current screen
+    final boundaryContext = appShellRepaintKey.currentContext;
+    if (boundaryContext == null) {
+      context.read<SettingsCubit>().toggleDarkMode(value);
+      return;
+    }
+    final boundary = boundaryContext.findRenderObject() as RenderRepaintBoundary;
+    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final image = await boundary.toImage(pixelRatio: pixelRatio);
+
+    if (!mounted) return;
+
+    // Max radius = distance from origin to farthest screen corner
+    final size = MediaQuery.of(context).size;
+    final maxRadius = [
+      Offset.zero,
+      Offset(size.width, 0),
+      Offset(0, size.height),
+      Offset(size.width, size.height),
+    ].fold<double>(0, (r, c) => math.max(r, (c - origin).distance));
+
+    final overlay = Overlay.of(context);
+    final cubit = context.read<SettingsCubit>();
+
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => Positioned.fill(
+        child: _CircularRevealOverlay(
+          image: image,
+          origin: origin,
+          maxRadius: maxRadius,
+          onComplete: () => entry.remove(),
+        ),
+      ),
+    );
+
+    // Show overlay first, then change theme underneath it
+    overlay.insert(entry);
+    cubit.toggleDarkMode(value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +94,11 @@ class SettingsPage extends StatelessWidget {
                 _sectionHeader('APPEARANCE', t),
                 const SizedBox(height: 12),
                 _ToggleRow(
+                  key: _darkModeRowKey,
                   label: 'Dark mode',
                   value: settings.darkModeEnabled,
                   accent: accent,
-                  onChanged: (v) => context.read<SettingsCubit>().toggleDarkMode(v),
+                  onChanged: _toggleDarkMode,
                 ),
                 const SizedBox(height: 28),
                 _sectionHeader('ACCENT', t),
@@ -70,6 +131,78 @@ class SettingsPage extends StatelessWidget {
       );
 }
 
+class _CircularRevealOverlay extends StatefulWidget {
+  final ui.Image image;
+  final Offset origin;
+  final double maxRadius;
+  final VoidCallback onComplete;
+
+  const _CircularRevealOverlay({
+    required this.image,
+    required this.origin,
+    required this.maxRadius,
+    required this.onComplete,
+  });
+
+  @override
+  State<_CircularRevealOverlay> createState() => _CircularRevealOverlayState();
+}
+
+class _CircularRevealOverlayState extends State<_CircularRevealOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _radius;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 480),
+    );
+    _radius = Tween<double>(begin: 0, end: widget.maxRadius).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeOut),
+    );
+    _ctrl.forward().whenComplete(widget.onComplete);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _radius,
+      builder: (context, _) => ClipPath(
+        clipper: _CircleRevealClipper(radius: _radius.value, center: widget.origin),
+        child: RawImage(image: widget.image, fit: BoxFit.fill, scale: 1),
+      ),
+    );
+  }
+}
+
+// Clips the old-theme image everywhere EXCEPT the growing circle,
+// revealing the new theme underneath as the circle expands.
+class _CircleRevealClipper extends CustomClipper<Path> {
+  final double radius;
+  final Offset center;
+
+  const _CircleRevealClipper({required this.radius, required this.center});
+
+  @override
+  Path getClip(Size size) => Path.combine(
+        PathOperation.difference,
+        Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height)),
+        Path()..addOval(Rect.fromCircle(center: center, radius: radius)),
+      );
+
+  @override
+  bool shouldReclip(_CircleRevealClipper old) => old.radius != radius;
+}
+
 class _Header extends StatelessWidget {
   final AccentColors accent;
   const _Header({required this.accent});
@@ -81,7 +214,7 @@ class _Header extends StatelessWidget {
       children: [
         Text(
           'Settings',
-          style: GoogleFonts.fraunces(
+          style: GoogleFonts.inter(
             fontSize: 26,
             fontWeight: FontWeight.w500,
             color: t.onSurface,
@@ -357,6 +490,7 @@ class _ToggleRow extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   const _ToggleRow({
+    super.key,
     required this.label,
     required this.value,
     required this.accent,
