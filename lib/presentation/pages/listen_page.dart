@@ -70,7 +70,7 @@ class _ListenPageState extends State<ListenPage> {
                             style: GoogleFonts.inter(
                               fontSize: 13,
                               color: settings.voiceEnabled
-                                  ? (t.ambientGlow ? accent.line : accent.solid)
+                                  ? (t.ambientGlow ? accent.line : t.muted(0.5))
                                   : t.muted(0.4),
                               letterSpacing: 1.4,
                               fontWeight: FontWeight.w500,
@@ -94,7 +94,7 @@ class _ListenPageState extends State<ListenPage> {
                             ),
                           ],
                           const SizedBox(height: 14),
-                          WaveBar(color: t.ambientGlow ? accent.line : accent.solid),
+                          WaveBar(color: t.ambientGlow ? accent.line : t.muted(0.5)),
                         ],
                       );
                     },
