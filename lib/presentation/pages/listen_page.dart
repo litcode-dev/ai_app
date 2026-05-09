@@ -8,6 +8,8 @@ import '../../core/theme/colors.dart';
 import '../bloc/halo_bloc.dart';
 import '../bloc/halo_event.dart';
 import '../bloc/halo_state.dart';
+import '../bloc/settings_cubit.dart';
+import '../bloc/settings_state.dart';
 import '../widgets/orb_widget.dart';
 import '../widgets/wave_bar.dart';
 
@@ -57,17 +59,44 @@ class _ListenPageState extends State<ListenPage> {
               child: Column(
                 children: [
                   const SizedBox(height: 16),
-                  Text(
-                    'LISTENING',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: accent.line,
-                      letterSpacing: 1.4,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  BlocBuilder<SettingsCubit, SettingsState>(
+                    builder: (context, settings) {
+                      return Column(
+                        children: [
+                          Text(
+                            settings.voiceEnabled ? 'LISTENING' : 'DEMO MODE',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: settings.voiceEnabled
+                                  ? accent.line
+                                  : Colors.white.withValues(alpha: 0.4),
+                              letterSpacing: 1.4,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (!settings.voiceEnabled) ...[
+                            const SizedBox(height: 6),
+                            GestureDetector(
+                              onTap: () => context
+                                  .read<HaloBloc>()
+                                  .add(const ChangeNavTab(NavTab.sliders)),
+                              child: Text(
+                                'Enable in Settings',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: accent.solid,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: accent.solid,
+                                ),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 14),
+                          WaveBar(color: accent.line),
+                        ],
+                      );
+                    },
                   ),
-                  const SizedBox(height: 14),
-                  WaveBar(color: accent.line),
                 ],
               ),
             ),
