@@ -111,10 +111,13 @@ class _HomePageState extends State<HomePage> {
                               height: 1.12,
                               letterSpacing: -0.5,
                               foreground: Paint()
-                                ..shader = const LinearGradient(
+                                ..shader = LinearGradient(
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
-                                  colors: [Color(0xFFF0FFF4), Color(0xFF5DFFA1)],
+                                  colors: [
+                                    Color.lerp(Colors.white, accent.line, 0.25)!,
+                                    accent.line,
+                                  ],
                                 ).createShader(const Rect.fromLTWH(0, 0, 300, 80)),
                             )
                           : GoogleFonts.fraunces(
@@ -122,7 +125,7 @@ class _HomePageState extends State<HomePage> {
                               fontWeight: FontWeight.w500,
                               height: 1.12,
                               letterSpacing: -0.5,
-                              color: t.onSurface,
+                              color: accent.solid,
                             ),
                     ),
                     const SizedBox(height: 16),
