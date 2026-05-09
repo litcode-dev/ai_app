@@ -49,9 +49,9 @@ class HaloApp extends StatelessWidget {
             darkTheme: ThemeData.dark().copyWith(
               scaffoldBackgroundColor: HaloTheme.dark.surface,
               textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
-              colorScheme: const ColorScheme.dark(
-                surface: Color(0xFF0A0D0B),
-                primary: Color(0xFF3AEB8E),
+              colorScheme: ColorScheme.dark(
+                surface: HaloTheme.dark.surface,
+                primary: const Color(0xFF3AEB8E),
               ),
               extensions: const [HaloTheme.dark],
             ),
