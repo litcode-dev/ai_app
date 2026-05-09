@@ -31,7 +31,7 @@ class SettingsPage extends StatelessWidget {
                 const SizedBox(height: 28),
                 _sectionHeader('ACCENT'),
                 const SizedBox(height: 12),
-                _AccentRow(currentAccent: haloState.accent, accent: accent),
+                _AccentRow(currentAccent: haloState.accent),
                 const SizedBox(height: 28),
                 _sectionHeader('AI BEHAVIOR'),
                 const SizedBox(height: 12),
@@ -48,7 +48,7 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _sectionHeader(String label) => Text(
+  static Widget _sectionHeader(String label) => Text(
         label,
         style: GoogleFonts.inter(
           fontSize: 11,
@@ -132,6 +132,7 @@ class _ProfileCardState extends State<_ProfileCard> {
   }
 
   void _save() {
+    if (!mounted) return;
     final name = _nameCtrl.text.trim();
     context.read<SettingsCubit>().updateProfile(
       name.isEmpty ? 'You' : name,
@@ -265,9 +266,8 @@ class _Initials extends StatelessWidget {
 
 class _AccentRow extends StatelessWidget {
   final String currentAccent;
-  final AccentColors accent;
 
-  const _AccentRow({required this.currentAccent, required this.accent});
+  const _AccentRow({required this.currentAccent});
 
   static const _options = ['fern', 'cobalt', 'amber', 'magenta'];
 
