@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum HaloScreen { home, listen, note, contact, confirm, people }
+enum HaloScreen { home, listen, note, contact, confirm, people, settings }
 
 enum ContactTab { timeline, reminders, details }
 

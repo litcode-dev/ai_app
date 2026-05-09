@@ -90,6 +90,8 @@ class HaloBloc extends Bloc<HaloEvent, HaloState> {
       screen = HaloScreen.home;
     } else if (event.tab == NavTab.people) {
       screen = HaloScreen.people;
+    } else if (event.tab == NavTab.sliders) {
+      screen = HaloScreen.settings;
     }
     emit(state.copyWith(navTab: event.tab, screen: screen));
   }
