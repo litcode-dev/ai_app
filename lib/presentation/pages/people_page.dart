@@ -187,12 +187,17 @@ class _ContactRow extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: accent.line.withValues(alpha: 0.1),
+                  color: t.ambientGlow
+                      ? accent.line.withValues(alpha: 0.1)
+                      : t.muted(0.07),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   contact.due!,
-                  style: GoogleFonts.inter(fontSize: 11, color: accent.line),
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: t.ambientGlow ? accent.line : t.muted(0.5),
+                  ),
                 ),
               ),
             ],
