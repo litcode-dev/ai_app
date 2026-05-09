@@ -43,9 +43,15 @@ class NotePage extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.fromLTRB(6, 6, 12, 6),
                       decoration: BoxDecoration(
-                        color: accent.line.withValues(alpha: 0.08),
+                        color: t.ambientGlow
+                            ? accent.line.withValues(alpha: 0.08)
+                            : t.muted(0.06),
                         borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: accent.line.withValues(alpha: 0.2)),
+                        border: Border.all(
+                          color: t.ambientGlow
+                              ? accent.line.withValues(alpha: 0.2)
+                              : t.muted(0.12),
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -54,7 +60,10 @@ class NotePage extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             'Note about Sarah Logan',
-                            style: GoogleFonts.inter(fontSize: 13, color: accent.line),
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: t.ambientGlow ? accent.line : t.muted(0.6),
+                            ),
                           ),
                         ],
                       ),
@@ -77,7 +86,7 @@ class NotePage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            _Caret(color: accent.line),
+                            _Caret(color: t.ambientGlow ? accent.line : t.muted(0.5)),
                           ],
                         ),
                       ),
