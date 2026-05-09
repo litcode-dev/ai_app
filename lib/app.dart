@@ -8,12 +8,14 @@ import 'injection_container.dart';
 import 'presentation/bloc/halo_bloc.dart';
 import 'presentation/bloc/halo_event.dart';
 import 'presentation/bloc/halo_state.dart';
+import 'presentation/bloc/settings_cubit.dart';
 import 'presentation/pages/confirm_page.dart';
 import 'presentation/pages/contact_page.dart';
 import 'presentation/pages/home_page.dart';
 import 'presentation/pages/listen_page.dart';
 import 'presentation/pages/note_page.dart';
 import 'presentation/pages/people_page.dart';
+import 'presentation/pages/settings_page.dart';
 import 'presentation/widgets/halo_nav_bar.dart';
 
 class HaloApp extends StatelessWidget {
@@ -21,8 +23,11 @@ class HaloApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<HaloBloc>()..add(const AppStarted()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => sl<HaloBloc>()..add(const AppStarted())),
+        BlocProvider(create: (_) => sl<SettingsCubit>()),
+      ],
       child: MaterialApp(
         title: 'Halo',
         debugShowCheckedModeBanner: false,
@@ -58,8 +63,9 @@ class _HaloShell extends StatelessWidget {
         final accent = getAccent(state.accent);
         final showAmbient =
             state.screen == HaloScreen.home || state.screen == HaloScreen.listen;
-        final showNav =
-            state.screen == HaloScreen.home || state.screen == HaloScreen.people;
+        final showNav = state.screen == HaloScreen.home ||
+            state.screen == HaloScreen.people ||
+            state.screen == HaloScreen.settings;
 
         return Scaffold(
           backgroundColor: kBackground,
@@ -158,6 +164,8 @@ class _HaloShell extends StatelessWidget {
         return const ContactPage(key: ValueKey('contact'));
       case HaloScreen.people:
         return const PeoplePage(key: ValueKey('people'));
+      case HaloScreen.settings:
+        return const SettingsPage(key: ValueKey('settings'));
     }
   }
 }
