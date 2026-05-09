@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/theme/colors.dart';
+import '../../core/theme/halo_theme.dart';
 import '../../domain/entities/contact.dart';
 import '../bloc/halo_bloc.dart';
 import '../bloc/halo_event.dart';
@@ -28,6 +29,7 @@ class PeoplePage extends StatelessWidget {
     return BlocBuilder<HaloBloc, HaloState>(
       builder: (context, state) {
         final accent = getAccent(state.accent);
+        final t = Theme.of(context).extension<HaloTheme>()!;
         final groups = _groupContacts(state.contacts);
 
         return Column(
@@ -40,11 +42,11 @@ class PeoplePage extends StatelessWidget {
                 children: [
                   Text(
                     'People',
-                    style: GoogleFonts.fraunces(
+                    style: GoogleFonts.urbanist(
                       fontSize: 30,
                       fontWeight: FontWeight.w500,
                       letterSpacing: -0.6,
-                      color: Colors.white,
+                      color: t.onSurface,
                     ),
                   ),
                   Container(
@@ -52,10 +54,10 @@ class PeoplePage extends StatelessWidget {
                     height: 36,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.06),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                      color: t.cardSurface,
+                      border: Border.all(color: t.borderColor),
                     ),
-                    child: const Center(child: HaloIcon(name: 'plus', size: 18)),
+                    child: Center(child: HaloIcon(name: 'plus', size: 18, color: t.onSurface)),
                   ),
                 ],
               ),
@@ -65,22 +67,22 @@ class PeoplePage extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: t.muted(0.05),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                  border: Border.all(color: t.cardSurface),
                 ),
                 child: Row(
                   children: [
                     Text(
                       '⌕',
-                      style: TextStyle(fontSize: 18, color: Colors.white.withValues(alpha: 0.45)),
+                      style: TextStyle(fontSize: 18, color: t.muted(0.45)),
                     ),
                     const SizedBox(width: 10),
                     Text(
                       'Search by name, company, context…',
                       style: GoogleFonts.inter(
                         fontSize: 14,
-                        color: Colors.white.withValues(alpha: 0.45),
+                        color: t.muted(0.45),
                       ),
                     ),
                   ],
@@ -104,13 +106,14 @@ class PeoplePage extends StatelessWidget {
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: 1.2,
-                                  color: Colors.white.withValues(alpha: 0.45),
+                                  color: t.muted(0.45),
                                 ),
                               ),
                             ),
                             ...entry.value.map((c) => _ContactRow(
                               contact: c,
                               accent: accent,
+                              t: t,
                               onTap: () => context
                                   .read<HaloBloc>()
                                   .add(SelectContact(c.name)),
@@ -131,11 +134,13 @@ class PeoplePage extends StatelessWidget {
 class _ContactRow extends StatelessWidget {
   final Contact contact;
   final AccentColors accent;
+  final HaloTheme t;
   final VoidCallback onTap;
 
   const _ContactRow({
     required this.contact,
     required this.accent,
+    required this.t,
     required this.onTap,
   });
 
@@ -160,7 +165,7 @@ class _ContactRow extends StatelessWidget {
                       fontSize: 15.5,
                       fontWeight: FontWeight.w500,
                       letterSpacing: -0.1,
-                      color: Colors.white,
+                      color: t.onSurface,
                     ),
                   ),
                   if (contact.snippet != null) ...[
@@ -170,7 +175,7 @@ class _ContactRow extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.inter(
                         fontSize: 13,
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: t.muted(0.5),
                       ),
                     ),
                   ],
