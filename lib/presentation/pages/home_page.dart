@@ -104,18 +104,26 @@ class _HomePageState extends State<HomePage> {
                     Text(
                       'What can I do\nfor you today?',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.fraunces(
-                        fontSize: 34,
-                        fontWeight: FontWeight.w500,
-                        height: 1.12,
-                        letterSpacing: -0.5,
-                        foreground: Paint()
-                          ..shader = const LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [Color(0xFFF0FFF4), Color(0xFF5DFFA1)],
-                          ).createShader(const Rect.fromLTWH(0, 0, 300, 80)),
-                      ),
+                      style: t.ambientGlow
+                          ? GoogleFonts.fraunces(
+                              fontSize: 34,
+                              fontWeight: FontWeight.w500,
+                              height: 1.12,
+                              letterSpacing: -0.5,
+                              foreground: Paint()
+                                ..shader = const LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [Color(0xFFF0FFF4), Color(0xFF5DFFA1)],
+                                ).createShader(const Rect.fromLTWH(0, 0, 300, 80)),
+                            )
+                          : GoogleFonts.fraunces(
+                              fontSize: 34,
+                              fontWeight: FontWeight.w500,
+                              height: 1.12,
+                              letterSpacing: -0.5,
+                              color: t.onSurface,
+                            ),
                     ),
                     const SizedBox(height: 16),
                     Expanded(
