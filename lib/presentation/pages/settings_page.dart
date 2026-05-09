@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/theme/colors.dart';
+import '../../core/theme/halo_theme.dart';
 import '../bloc/halo_bloc.dart';
 import '../bloc/halo_event.dart';
 import '../bloc/halo_state.dart';
@@ -22,6 +23,7 @@ class SettingsPage extends StatelessWidget {
         final accent = getAccent(haloState.accent);
         return BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, settings) {
+            final t = Theme.of(context).extension<HaloTheme>()!;
             return ListView(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
               children: [
@@ -29,15 +31,24 @@ class SettingsPage extends StatelessWidget {
                 const SizedBox(height: 24),
                 _ProfileCard(settings: settings, accent: accent),
                 const SizedBox(height: 28),
-                _sectionHeader('ACCENT'),
+                _sectionHeader('APPEARANCE', t),
+                const SizedBox(height: 12),
+                _ToggleRow(
+                  label: 'Dark mode',
+                  value: settings.darkModeEnabled,
+                  accent: accent,
+                  onChanged: (v) => context.read<SettingsCubit>().toggleDarkMode(v),
+                ),
+                const SizedBox(height: 28),
+                _sectionHeader('ACCENT', t),
                 const SizedBox(height: 12),
                 _AccentRow(currentAccent: haloState.accent),
                 const SizedBox(height: 28),
-                _sectionHeader('AI BEHAVIOR'),
+                _sectionHeader('AI BEHAVIOR', t),
                 const SizedBox(height: 12),
                 _BehaviorSection(settings: settings, accent: accent),
                 const SizedBox(height: 28),
-                _sectionHeader('NOTIFICATIONS'),
+                _sectionHeader('NOTIFICATIONS', t),
                 const SizedBox(height: 12),
                 _NotificationSection(settings: settings, accent: accent),
               ],
@@ -48,13 +59,13 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  static Widget _sectionHeader(String label) => Text(
+  static Widget _sectionHeader(String label, HaloTheme t) => Text(
         label,
         style: GoogleFonts.inter(
           fontSize: 11,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.2,
-          color: Colors.white.withValues(alpha: 0.4),
+          color: t.muted(0.4),
         ),
       );
 }
@@ -65,14 +76,15 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context).extension<HaloTheme>()!;
     return Row(
       children: [
         Text(
           'Settings',
-          style: GoogleFonts.fraunces(
+          style: GoogleFonts.urbanist(
             fontSize: 26,
             fontWeight: FontWeight.w500,
-            color: Colors.white,
+            color: t.onSurface,
           ),
         ),
         const Spacer(),
@@ -164,6 +176,7 @@ class _ProfileCardState extends State<_ProfileCard> {
 
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context).extension<HaloTheme>()!;
     final settings = widget.settings;
     final accent = widget.accent;
     final initials =
@@ -172,9 +185,9 @@ class _ProfileCardState extends State<_ProfileCard> {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.04),
+        color: t.cardSurface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: t.borderColor),
       ),
       child: Row(
         children: [
@@ -212,7 +225,7 @@ class _ProfileCardState extends State<_ProfileCard> {
                   style: GoogleFonts.inter(
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: t.onSurface,
                   ),
                   decoration: const InputDecoration(
                     isDense: true,
@@ -227,7 +240,7 @@ class _ProfileCardState extends State<_ProfileCard> {
                   onTapOutside: (_) => _save(),
                   style: GoogleFonts.inter(
                     fontSize: 13,
-                    color: Colors.white.withValues(alpha: 0.55),
+                    color: t.muted(0.55),
                   ),
                   decoration: const InputDecoration(
                     isDense: true,
@@ -352,13 +365,14 @@ class _ToggleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context).extension<HaloTheme>()!;
     return Row(
       children: [
         Text(
           label,
           style: GoogleFonts.inter(
             fontSize: 15,
-            color: Colors.white.withValues(alpha: 0.87),
+            color: t.muted(0.87),
           ),
         ),
         const Spacer(),
@@ -367,8 +381,8 @@ class _ToggleRow extends StatelessWidget {
           onChanged: onChanged,
           activeColor: accent.solid, // ignore: deprecated_member_use
           activeTrackColor: accent.glow.withValues(alpha: 0.5),
-          inactiveThumbColor: Colors.white.withValues(alpha: 0.4),
-          inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
+          inactiveThumbColor: t.muted(0.4),
+          inactiveTrackColor: t.muted(0.1),
         ),
       ],
     );
@@ -383,19 +397,20 @@ class _ToneSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context).extension<HaloTheme>()!;
     return Row(
       children: [
         Text(
           'Response tone',
           style: GoogleFonts.inter(
             fontSize: 15,
-            color: Colors.white.withValues(alpha: 0.87),
+            color: t.muted(0.87),
           ),
         ),
         const Spacer(),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.07),
+            color: t.muted(0.07),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -509,6 +524,7 @@ class _TimeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context).extension<HaloTheme>()!;
     return GestureDetector(
       onTap: onTap,
       child: Row(
@@ -517,7 +533,7 @@ class _TimeRow extends StatelessWidget {
             label,
             style: GoogleFonts.inter(
               fontSize: 15,
-              color: Colors.white.withValues(alpha: 0.87),
+              color: t.muted(0.87),
             ),
           ),
           const Spacer(),
