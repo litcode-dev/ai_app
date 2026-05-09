@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/theme/colors.dart';
+import '../../core/theme/halo_theme.dart';
 import '../bloc/halo_bloc.dart';
 import '../bloc/halo_event.dart';
 import '../bloc/halo_state.dart';
@@ -17,6 +18,7 @@ class HaloNavBar extends StatelessWidget {
     return BlocBuilder<HaloBloc, HaloState>(
       builder: (context, state) {
         final accent = getAccent(state.accent);
+        final t = Theme.of(context).extension<HaloTheme>()!;
         return Container(
           padding: const EdgeInsets.only(bottom: 28, top: 10),
           child: Row(
@@ -32,7 +34,7 @@ class HaloNavBar extends StatelessWidget {
                   size: 24,
                   color: state.navTab == NavTab.people
                       ? accent.solid
-                      : Colors.white.withValues(alpha: 0.5),
+                      : t.muted(0.5),
                 ),
               ),
               _NavItem(
@@ -50,7 +52,7 @@ class HaloNavBar extends StatelessWidget {
                   size: 24,
                   color: state.navTab == NavTab.sliders
                       ? accent.solid
-                      : Colors.white.withValues(alpha: 0.5),
+                      : t.muted(0.5),
                 ),
               ),
             ],
@@ -136,22 +138,28 @@ class _OrbMini extends StatelessWidget {
 class HaloIcon extends StatelessWidget {
   final String name;
   final double size;
-  final Color color;
+  final Color? color;
   final double strokeWidth;
 
   const HaloIcon({
     super.key,
     required this.name,
     this.size = 22,
-    this.color = Colors.white,
+    this.color,
     this.strokeWidth = 1.8,
   });
 
   @override
   Widget build(BuildContext context) {
+    final resolvedColor =
+        color ?? Theme.of(context).extension<HaloTheme>()!.onSurface;
     return CustomPaint(
       size: Size(size, size),
-      painter: _IconPainter(name: name, color: color, strokeWidth: strokeWidth),
+      painter: _IconPainter(
+        name: name,
+        color: resolvedColor,
+        strokeWidth: strokeWidth,
+      ),
     );
   }
 }
