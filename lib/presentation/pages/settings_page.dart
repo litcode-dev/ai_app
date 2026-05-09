@@ -134,9 +134,10 @@ class _ProfileCardState extends State<_ProfileCard> {
   void _save() {
     if (!mounted) return;
     final name = _nameCtrl.text.trim();
+    final tagline = _taglineCtrl.text.trim();
     context.read<SettingsCubit>().updateProfile(
       name.isEmpty ? 'You' : name,
-      _taglineCtrl.text.trim(),
+      tagline.isEmpty ? 'Relationship intelligence' : tagline,
     );
   }
 

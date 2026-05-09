@@ -26,7 +26,7 @@ class HaloApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => sl<HaloBloc>()..add(const AppStarted())),
-        BlocProvider(create: (_) => sl<SettingsCubit>()),
+        BlocProvider.value(value: sl<SettingsCubit>()),
       ],
       child: MaterialApp(
         title: 'Halo',
