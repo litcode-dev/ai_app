@@ -397,20 +397,20 @@ class _ToneSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context).extension<HaloTheme>()!;
+    final theme = Theme.of(context).extension<HaloTheme>()!;
     return Row(
       children: [
         Text(
           'Response tone',
           style: GoogleFonts.inter(
             fontSize: 15,
-            color: t.muted(0.87),
+            color: theme.muted(0.87),
           ),
         ),
         const Spacer(),
         Container(
           decoration: BoxDecoration(
-            color: t.muted(0.07),
+            color: theme.muted(0.07),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -432,7 +432,7 @@ class _ToneSelector extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: isActive ? kOnAccent : Colors.white.withValues(alpha: 0.5),
+                      color: isActive ? kOnAccent : theme.muted(0.5),
                     ),
                   ),
                 ),
