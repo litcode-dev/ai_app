@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/theme/colors.dart';
+import '../../core/theme/halo_theme.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/entities/contact_detail.dart';
 import '../../domain/entities/reminder.dart';
@@ -21,6 +22,7 @@ class ContactPage extends StatelessWidget {
     return BlocBuilder<HaloBloc, HaloState>(
       builder: (context, state) {
         final accent = getAccent(state.accent);
+        final t = Theme.of(context).extension<HaloTheme>()!;
         final contact = state.selectedContact;
         if (contact == null) {
           return const Center(child: CircularProgressIndicator());
@@ -36,9 +38,9 @@ class ContactPage extends StatelessWidget {
                     onTap: () => context
                         .read<HaloBloc>()
                         .add(const NavigateToScreen(HaloScreen.people)),
-                    child: const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: HaloIcon(name: 'back', size: 26),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: HaloIcon(name: 'back', size: 26, color: t.onSurface),
                     ),
                   ),
                   Padding(
@@ -46,7 +48,7 @@ class ContactPage extends StatelessWidget {
                     child: HaloIcon(
                       name: contact.starred ? 'star-fill' : 'star',
                       size: 22,
-                      color: contact.starred ? accent.line : Colors.white,
+                      color: contact.starred ? accent.line : t.onSurface,
                     ),
                   ),
                 ],
@@ -88,7 +90,7 @@ class ContactPage extends StatelessWidget {
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
                         letterSpacing: -0.4,
-                        color: Colors.white,
+                        color: t.onSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -98,14 +100,14 @@ class ContactPage extends StatelessWidget {
                         HaloIcon(
                           name: 'clock',
                           size: 13,
-                          color: Colors.white.withValues(alpha: 0.5),
+                          color: t.muted(0.5),
                         ),
                         const SizedBox(width: 6),
                         Text(
                           'Last interaction was yesterday',
                           style: GoogleFonts.inter(
                             fontSize: 13,
-                            color: Colors.white.withValues(alpha: 0.5),
+                            color: t.muted(0.5),
                           ),
                         ),
                       ],
@@ -119,22 +121,23 @@ class ContactPage extends StatelessWidget {
                           label: 'Brief',
                           isPrimary: true,
                           accent: accent,
+                          t: t,
                           onTap: () => context
                               .read<HaloBloc>()
                               .add(const NavigateToScreen(HaloScreen.confirm)),
                         ),
                         const SizedBox(width: 12),
-                        _ActionButton(icon: 'msg', label: 'Message', accent: accent),
+                        _ActionButton(icon: 'msg', label: 'Message', accent: accent, t: t),
                         const SizedBox(width: 12),
-                        _ActionButton(icon: 'edit', label: 'Note', accent: accent),
+                        _ActionButton(icon: 'edit', label: 'Note', accent: accent, t: t),
                         const SizedBox(width: 12),
-                        _ActionButton(icon: 'more', label: 'More', accent: accent),
+                        _ActionButton(icon: 'more', label: 'More', accent: accent, t: t),
                       ],
                     ),
                     const SizedBox(height: 22),
-                    _ContactTabs(state: state, accent: accent),
+                    _ContactTabs(state: state, accent: accent, t: t),
                     const SizedBox(height: 14),
-                    _TabContent(state: state, contact: contact, accent: accent),
+                    _TabContent(state: state, contact: contact, accent: accent, t: t),
                     const SizedBox(height: 40),
                   ],
                 ),
@@ -152,12 +155,14 @@ class _ActionButton extends StatelessWidget {
   final String label;
   final bool isPrimary;
   final AccentColors accent;
+  final HaloTheme t;
   final VoidCallback? onTap;
 
   const _ActionButton({
     required this.icon,
     required this.label,
     required this.accent,
+    required this.t,
     this.isPrimary = false,
     this.onTap,
   });
@@ -173,21 +178,21 @@ class _ActionButton extends StatelessWidget {
             height: 56,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isPrimary ? accent.solid : Colors.white.withValues(alpha: 0.06),
-              border: isPrimary ? null : Border.all(color: Colors.white.withValues(alpha: 0.1)),
+              color: isPrimary ? accent.solid : t.cardSurface,
+              border: isPrimary ? null : Border.all(color: t.muted(0.1)),
               boxShadow: isPrimary
                   ? [BoxShadow(color: accent.glow, blurRadius: 20, offset: const Offset(0, 6))]
                   : null,
             ),
             child: Center(
-              child: HaloIcon(name: icon, size: 22, color: isPrimary ? kOnAccent : Colors.white),
+              child: HaloIcon(name: icon, size: 22, color: isPrimary ? kOnAccent : t.onSurface),
             ),
           ),
         ),
         const SizedBox(height: 6),
         Text(
           label,
-          style: GoogleFonts.inter(fontSize: 11, color: Colors.white.withValues(alpha: 0.5)),
+          style: GoogleFonts.inter(fontSize: 11, color: t.muted(0.5)),
         ),
       ],
     );
@@ -197,8 +202,9 @@ class _ActionButton extends StatelessWidget {
 class _ContactTabs extends StatelessWidget {
   final HaloState state;
   final AccentColors accent;
+  final HaloTheme t;
 
-  const _ContactTabs({required this.state, required this.accent});
+  const _ContactTabs({required this.state, required this.accent, required this.t});
 
   @override
   Widget build(BuildContext context) {
@@ -209,14 +215,14 @@ class _ContactTabs extends StatelessWidget {
     ];
     return Container(
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08))),
+        border: Border(bottom: BorderSide(color: t.borderColor)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: tabs.map((t) {
-          final isActive = state.contactTab == t.value;
+        children: tabs.map((tab) {
+          final isActive = state.contactTab == tab.value;
           return GestureDetector(
-            onTap: () => context.read<HaloBloc>().add(ChangeContactTab(t.value)),
+            onTap: () => context.read<HaloBloc>().add(ChangeContactTab(tab.value)),
             child: Container(
               padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
               decoration: BoxDecoration(
@@ -228,11 +234,11 @@ class _ContactTabs extends StatelessWidget {
                 ),
               ),
               child: Text(
-                t.label,
+                tab.label,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                  color: isActive ? Colors.white : Colors.white.withValues(alpha: 0.4),
+                  color: isActive ? t.onSurface : t.muted(0.4),
                 ),
               ),
             ),
@@ -247,18 +253,24 @@ class _TabContent extends StatelessWidget {
   final HaloState state;
   final Contact contact;
   final AccentColors accent;
+  final HaloTheme t;
 
-  const _TabContent({required this.state, required this.contact, required this.accent});
+  const _TabContent({
+    required this.state,
+    required this.contact,
+    required this.accent,
+    required this.t,
+  });
 
   @override
   Widget build(BuildContext context) {
     switch (state.contactTab) {
       case ContactTab.timeline:
-        return _TimelineList(items: contact.timeline, accent: accent);
+        return _TimelineList(items: contact.timeline, accent: accent, t: t);
       case ContactTab.reminders:
-        return _RemindersList(items: contact.reminders, accent: accent);
+        return _RemindersList(items: contact.reminders, accent: accent, t: t);
       case ContactTab.details:
-        return _DetailsList(details: contact.details, accent: accent);
+        return _DetailsList(details: contact.details, accent: accent, t: t);
     }
   }
 }
@@ -266,8 +278,9 @@ class _TabContent extends StatelessWidget {
 class _TimelineList extends StatelessWidget {
   final List<TimelineItem> items;
   final AccentColors accent;
+  final HaloTheme t;
 
-  const _TimelineList({required this.items, required this.accent});
+  const _TimelineList({required this.items, required this.accent, required this.t});
 
   @override
   Widget build(BuildContext context) {
@@ -280,7 +293,7 @@ class _TimelineList extends StatelessWidget {
           decoration: BoxDecoration(
             border: isLast
                 ? null
-                : Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.06))),
+                : Border(bottom: BorderSide(color: t.cardSurface)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -304,7 +317,7 @@ class _TimelineList extends StatelessWidget {
                       item.when.toUpperCase(),
                       style: GoogleFonts.inter(
                         fontSize: 11,
-                        color: Colors.white.withValues(alpha: 0.45),
+                        color: t.muted(0.45),
                         letterSpacing: 0.6,
                       ),
                     ),
@@ -314,7 +327,7 @@ class _TimelineList extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 14.5,
                         height: 1.45,
-                        color: Colors.white.withValues(alpha: 0.92),
+                        color: t.muted(0.92),
                       ),
                     ),
                   ],
@@ -331,8 +344,9 @@ class _TimelineList extends StatelessWidget {
 class _RemindersList extends StatelessWidget {
   final List<Reminder> items;
   final AccentColors accent;
+  final HaloTheme t;
 
-  const _RemindersList({required this.items, required this.accent});
+  const _RemindersList({required this.items, required this.accent, required this.t});
 
   @override
   Widget build(BuildContext context) {
@@ -342,9 +356,9 @@ class _RemindersList extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.04),
+            color: t.cardSurface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+            border: Border.all(color: t.cardSurface),
           ),
           child: Row(
             children: [
@@ -362,13 +376,13 @@ class _RemindersList extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(r.text, style: GoogleFonts.inter(fontSize: 14.5, color: Colors.white)),
+                    Text(r.text, style: GoogleFonts.inter(fontSize: 14.5, color: t.onSurface)),
                     const SizedBox(height: 2),
                     Text(
                       r.due,
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: t.muted(0.5),
                       ),
                     ),
                   ],
@@ -385,8 +399,9 @@ class _RemindersList extends StatelessWidget {
 class _DetailsList extends StatelessWidget {
   final List<ContactDetail> details;
   final AccentColors accent;
+  final HaloTheme t;
 
-  const _DetailsList({required this.details, required this.accent});
+  const _DetailsList({required this.details, required this.accent, required this.t});
 
   @override
   Widget build(BuildContext context) {
@@ -399,7 +414,7 @@ class _DetailsList extends StatelessWidget {
           decoration: BoxDecoration(
             border: isLast
                 ? null
-                : Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.06))),
+                : Border(bottom: BorderSide(color: t.cardSurface)),
           ),
           child: Row(
             children: [
@@ -413,12 +428,12 @@ class _DetailsList extends StatelessWidget {
                       d.label.toUpperCase(),
                       style: GoogleFonts.inter(
                         fontSize: 11,
-                        color: Colors.white.withValues(alpha: 0.45),
+                        color: t.muted(0.45),
                         letterSpacing: 0.6,
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(d.value, style: GoogleFonts.inter(fontSize: 14.5, color: Colors.white)),
+                    Text(d.value, style: GoogleFonts.inter(fontSize: 14.5, color: t.onSurface)),
                   ],
                 ),
               ),
