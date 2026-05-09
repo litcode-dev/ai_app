@@ -125,7 +125,7 @@ class _HomePageState extends State<HomePage> {
                               fontWeight: FontWeight.w500,
                               height: 1.12,
                               letterSpacing: -0.5,
-                              color: accent.solid,
+                              color: t.muted(0.75),
                             ),
                     ),
                     const SizedBox(height: 16),
