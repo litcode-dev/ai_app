@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'core/theme/colors.dart';
+import 'core/theme/halo_theme.dart';
 import 'injection_container.dart';
 import 'presentation/bloc/halo_bloc.dart';
 import 'presentation/bloc/halo_event.dart';
 import 'presentation/bloc/halo_state.dart';
 import 'presentation/bloc/settings_cubit.dart';
+import 'presentation/bloc/settings_state.dart';
 import 'presentation/pages/confirm_page.dart';
 import 'presentation/pages/contact_page.dart';
 import 'presentation/pages/home_page.dart';
@@ -28,18 +29,35 @@ class HaloApp extends StatelessWidget {
         BlocProvider(create: (_) => sl<HaloBloc>()..add(const AppStarted())),
         BlocProvider.value(value: sl<SettingsCubit>()),
       ],
-      child: MaterialApp(
-        title: 'Halo',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          scaffoldBackgroundColor: kBackground,
-          textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
-          colorScheme: const ColorScheme.dark(
-            surface: kBackground,
-            primary: Color(0xFF3AEB8E),
-          ),
-        ),
-        home: const _HaloShell(),
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        buildWhen: (prev, curr) => prev.darkModeEnabled != curr.darkModeEnabled,
+        builder: (context, settings) {
+          final isDark = settings.darkModeEnabled;
+          return MaterialApp(
+            title: 'Halo',
+            debugShowCheckedModeBanner: false,
+            themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+            theme: ThemeData.light().copyWith(
+              scaffoldBackgroundColor: HaloTheme.light.surface,
+              textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme),
+              colorScheme: ColorScheme.light(
+                surface: HaloTheme.light.surface,
+                primary: const Color(0xFF3AEB8E),
+              ),
+              extensions: const [HaloTheme.light],
+            ),
+            darkTheme: ThemeData.dark().copyWith(
+              scaffoldBackgroundColor: HaloTheme.dark.surface,
+              textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+              colorScheme: const ColorScheme.dark(
+                surface: Color(0xFF0A0D0B),
+                primary: Color(0xFF3AEB8E),
+              ),
+              extensions: const [HaloTheme.dark],
+            ),
+            home: const _HaloShell(),
+          );
+        },
       ),
     );
   }
@@ -50,13 +68,7 @@ class _HaloShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-    );
+    final t = Theme.of(context).extension<HaloTheme>()!;
 
     return BlocBuilder<HaloBloc, HaloState>(
       builder: (context, state) {
@@ -68,7 +80,7 @@ class _HaloShell extends StatelessWidget {
             state.screen == HaloScreen.settings;
 
         return Scaffold(
-          backgroundColor: kBackground,
+          backgroundColor: t.surface,
           body: Container(
             decoration: BoxDecoration(
               gradient: RadialGradient(
@@ -81,7 +93,7 @@ class _HaloShell extends StatelessWidget {
               bottom: false,
               child: Stack(
                 children: [
-                  if (showAmbient)
+                  if (showAmbient && t.ambientGlow)
                     Positioned.fill(
                       child: IgnorePointer(
                         child: DecoratedBox(
@@ -136,7 +148,7 @@ class _HaloShell extends StatelessWidget {
                           width: 134,
                           height: 5,
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.45),
+                            color: t.muted(0.45),
                             borderRadius: BorderRadius.circular(3),
                           ),
                         ),
