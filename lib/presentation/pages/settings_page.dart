@@ -81,7 +81,7 @@ class _Header extends StatelessWidget {
       children: [
         Text(
           'Settings',
-          style: GoogleFonts.urbanist(
+          style: GoogleFonts.fraunces(
             fontSize: 26,
             fontWeight: FontWeight.w500,
             color: t.onSurface,
