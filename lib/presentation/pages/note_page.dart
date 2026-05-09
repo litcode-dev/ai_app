@@ -115,7 +115,7 @@ class NotePage extends StatelessWidget {
                 ),
               ),
             ),
-            const _IOSKeyboard(),
+            _IOSKeyboard(),
           ],
         );
       },
@@ -172,6 +172,7 @@ class _IOSKeyboard extends StatelessWidget {
     final t = Theme.of(context).extension<HaloTheme>()!;
     final keyBg = t.muted(0.22);
     final glyphColor = t.muted(0.70);
+    final specialKeyBg = t.muted(0.10);
 
     Widget key(String label, {double? width, bool isReturn = false, bool isSpecial = false}) {
       return Container(
@@ -180,7 +181,7 @@ class _IOSKeyboard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isReturn
               ? const Color(0xFF0088FF)
-              : (isSpecial ? t.muted(0.10) : keyBg),
+              : isSpecial ? specialKeyBg : keyBg,
           borderRadius: BorderRadius.circular(8),
           boxShadow: const [
             BoxShadow(color: Color(0x13000000), offset: Offset(0, 1), blurRadius: 0, spreadRadius: 1),
