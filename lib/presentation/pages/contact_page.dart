@@ -48,7 +48,9 @@ class ContactPage extends StatelessWidget {
                     child: HaloIcon(
                       name: contact.starred ? 'star-fill' : 'star',
                       size: 22,
-                      color: contact.starred ? accent.line : t.onSurface,
+                      color: contact.starred
+                          ? (t.ambientGlow ? accent.line : t.muted(0.7))
+                          : t.onSurface,
                     ),
                   ),
                 ],
@@ -69,15 +71,19 @@ class ContactPage extends StatelessWidget {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: accent.line.withValues(alpha: 0.3),
+                              color: t.ambientGlow
+                                  ? accent.line.withValues(alpha: 0.3)
+                                  : t.muted(0.15),
                               width: 1.5,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: accent.line.withValues(alpha: 0.2),
-                                blurRadius: 30,
-                              ),
-                            ],
+                            boxShadow: t.ambientGlow
+                                ? [
+                                    BoxShadow(
+                                      color: accent.line.withValues(alpha: 0.2),
+                                      blurRadius: 30,
+                                    ),
+                                  ]
+                                : null,
                           ),
                         ),
                         AvatarWidget(name: contact.name, size: 108, palette: contact.palette),
@@ -228,7 +234,9 @@ class _ContactTabs extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: isActive ? accent.solid : Colors.transparent,
+                    color: isActive
+                        ? (t.ambientGlow ? accent.solid : t.onSurface)
+                        : Colors.transparent,
                     width: 2,
                   ),
                 ),
@@ -302,11 +310,23 @@ class _TimelineList extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: accent.line.withValues(alpha: 0.08),
+                  color: t.ambientGlow
+                    ? accent.line.withValues(alpha: 0.08)
+                    : t.muted(0.06),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: accent.line.withValues(alpha: 0.18)),
+                  border: Border.all(
+                    color: t.ambientGlow
+                        ? accent.line.withValues(alpha: 0.18)
+                        : t.muted(0.12),
+                  ),
                 ),
-                child: Center(child: HaloIcon(name: item.icon, size: 16, color: accent.line)),
+                child: Center(
+                  child: HaloIcon(
+                    name: item.icon,
+                    size: 16,
+                    color: t.ambientGlow ? accent.line : t.muted(0.5),
+                  ),
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -367,9 +387,18 @@ class _RemindersList extends StatelessWidget {
                 height: 34,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: accent.solid, width: 1.5),
+                  border: Border.all(
+                    color: t.ambientGlow ? accent.solid : t.muted(0.3),
+                    width: 1.5,
+                  ),
                 ),
-                child: Center(child: HaloIcon(name: 'calendar', size: 16, color: accent.solid)),
+                child: Center(
+                  child: HaloIcon(
+                    name: 'calendar',
+                    size: 16,
+                    color: t.ambientGlow ? accent.solid : t.muted(0.5),
+                  ),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -418,7 +447,7 @@ class _DetailsList extends StatelessWidget {
           ),
           child: Row(
             children: [
-              HaloIcon(name: d.icon, size: 18, color: accent.solid),
+              HaloIcon(name: d.icon, size: 18, color: t.ambientGlow ? accent.solid : t.muted(0.5)),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
