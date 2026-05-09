@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/theme/colors.dart';
+import '../../core/theme/halo_theme.dart';
 import '../bloc/halo_bloc.dart';
 import '../bloc/halo_event.dart';
 import '../bloc/halo_state.dart';
@@ -19,6 +20,7 @@ class ConfirmPage extends StatelessWidget {
     return BlocBuilder<HaloBloc, HaloState>(
       builder: (context, state) {
         final accent = getAccent(state.accent);
+        final t = Theme.of(context).extension<HaloTheme>()!;
         final contact = state.selectedContact;
         final firstName = contact?.name.split(' ').first ?? 'Contact';
 
@@ -84,9 +86,7 @@ class ConfirmPage extends StatelessWidget {
                                 width: isActive ? 36 : 8,
                                 height: 4,
                                 decoration: BoxDecoration(
-                                  color: isActive
-                                      ? accent.solid
-                                      : Colors.white.withValues(alpha: 0.16),
+                                  color: isActive ? accent.solid : t.muted(0.16),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
@@ -102,7 +102,7 @@ class ConfirmPage extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                             letterSpacing: -0.3,
                             height: 1.3,
-                            color: Colors.white,
+                            color: t.onSurface,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -112,7 +112,7 @@ class ConfirmPage extends StatelessWidget {
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             height: 1.45,
-                            color: Colors.white.withValues(alpha: 0.55),
+                            color: t.muted(0.55),
                           ),
                         ),
                       ],
@@ -129,9 +129,9 @@ class ConfirmPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
+                        color: t.borderColor,
                         borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                        border: Border.all(color: t.muted(0.1)),
                       ),
                       child: Center(
                         child: Text(
@@ -139,7 +139,7 @@ class ConfirmPage extends StatelessWidget {
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Colors.white,
+                            color: t.onSurface,
                           ),
                         ),
                       ),
