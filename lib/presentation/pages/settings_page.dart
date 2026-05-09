@@ -1,0 +1,535 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../core/theme/colors.dart';
+import '../bloc/halo_bloc.dart';
+import '../bloc/halo_event.dart';
+import '../bloc/halo_state.dart';
+import '../bloc/settings_cubit.dart';
+import '../bloc/settings_state.dart';
+
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<HaloBloc, HaloState>(
+      builder: (context, haloState) {
+        final accent = getAccent(haloState.accent);
+        return BlocBuilder<SettingsCubit, SettingsState>(
+          builder: (context, settings) {
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+              children: [
+                _Header(accent: accent),
+                const SizedBox(height: 24),
+                _ProfileCard(settings: settings, accent: accent),
+                const SizedBox(height: 28),
+                _sectionHeader('ACCENT'),
+                const SizedBox(height: 12),
+                _AccentRow(currentAccent: haloState.accent, accent: accent),
+                const SizedBox(height: 28),
+                _sectionHeader('AI BEHAVIOR'),
+                const SizedBox(height: 12),
+                _BehaviorSection(settings: settings, accent: accent),
+                const SizedBox(height: 28),
+                _sectionHeader('NOTIFICATIONS'),
+                const SizedBox(height: 12),
+                _NotificationSection(settings: settings, accent: accent),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _sectionHeader(String label) => Text(
+        label,
+        style: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.2,
+          color: Colors.white.withValues(alpha: 0.4),
+        ),
+      );
+}
+
+class _Header extends StatelessWidget {
+  final AccentColors accent;
+  const _Header({required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(
+          'Settings',
+          style: GoogleFonts.fraunces(
+            fontSize: 26,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+          ),
+        ),
+        const Spacer(),
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: accent.solid,
+            shape: BoxShape.circle,
+            boxShadow: [BoxShadow(color: accent.glow, blurRadius: 8)],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProfileCard extends StatefulWidget {
+  final SettingsState settings;
+  final AccentColors accent;
+
+  const _ProfileCard({required this.settings, required this.accent});
+
+  @override
+  State<_ProfileCard> createState() => _ProfileCardState();
+}
+
+class _ProfileCardState extends State<_ProfileCard> {
+  late TextEditingController _nameCtrl;
+  late TextEditingController _taglineCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameCtrl = TextEditingController(text: widget.settings.profileName);
+    _taglineCtrl = TextEditingController(text: widget.settings.profileTagline);
+  }
+
+  @override
+  void didUpdateWidget(_ProfileCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.settings.profileName != widget.settings.profileName &&
+        _nameCtrl.text != widget.settings.profileName) {
+      _nameCtrl.text = widget.settings.profileName;
+    }
+    if (oldWidget.settings.profileTagline != widget.settings.profileTagline &&
+        _taglineCtrl.text != widget.settings.profileTagline) {
+      _taglineCtrl.text = widget.settings.profileTagline;
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _taglineCtrl.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final name = _nameCtrl.text.trim();
+    context.read<SettingsCubit>().updateProfile(
+      name.isEmpty ? 'You' : name,
+      _taglineCtrl.text.trim(),
+    );
+  }
+
+  Future<void> _pickAvatar() async {
+    try {
+      final file = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+      if (file == null || !mounted) return;
+      final name = _nameCtrl.text.trim();
+      context.read<SettingsCubit>().updateProfile(
+        name.isEmpty ? 'You' : name,
+        _taglineCtrl.text.trim(),
+        avatarPath: file.path,
+      );
+    } on Exception {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not access photo library')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = widget.settings;
+    final accent = widget.accent;
+    final initials =
+        (settings.profileName.isNotEmpty ? settings.profileName[0] : 'Y').toUpperCase();
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+      ),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: _pickAvatar,
+            child: Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: accent.solid, width: 2),
+                color: accent.glow.withValues(alpha: 0.2),
+              ),
+              child: ClipOval(
+                child: settings.profileAvatarPath != null
+                    ? Image.file(
+                        File(settings.profileAvatarPath!),
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => // ignore: unnecessary_underscores
+                            _Initials(initials: initials, accent: accent),
+                      )
+                    : _Initials(initials: initials, accent: accent),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _nameCtrl,
+                  onEditingComplete: _save,
+                  onTapOutside: (_) => _save(),
+                  style: GoogleFonts.inter(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                    border: InputBorder.none,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                TextField(
+                  controller: _taglineCtrl,
+                  onEditingComplete: _save,
+                  onTapOutside: (_) => _save(),
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: Colors.white.withValues(alpha: 0.55),
+                  ),
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                    border: InputBorder.none,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Initials extends StatelessWidget {
+  final String initials;
+  final AccentColors accent;
+
+  const _Initials({required this.initials, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        initials,
+        style: GoogleFonts.inter(
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          color: accent.solid,
+        ),
+      ),
+    );
+  }
+}
+
+class _AccentRow extends StatelessWidget {
+  final String currentAccent;
+  final AccentColors accent;
+
+  const _AccentRow({required this.currentAccent, required this.accent});
+
+  static const _options = ['fern', 'cobalt', 'amber', 'magenta'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: _options.map((name) {
+        final colors = getAccent(name);
+        final isActive = name == currentAccent;
+        return Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: GestureDetector(
+            onTap: () => context.read<HaloBloc>().add(ChangeAccent(name)),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colors.solid,
+                border: isActive
+                    ? Border.all(color: Colors.white, width: 2.5)
+                    : Border.all(color: Colors.transparent, width: 2.5),
+                boxShadow: isActive
+                    ? [BoxShadow(color: colors.glow, blurRadius: 12, spreadRadius: 1)]
+                    : null,
+              ),
+              child: isActive
+                  ? const Icon(Icons.check, size: 16, color: Colors.white)
+                  : null,
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _BehaviorSection extends StatelessWidget {
+  final SettingsState settings;
+  final AccentColors accent;
+
+  const _BehaviorSection({required this.settings, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _ToggleRow(
+          label: 'Suggestion chips',
+          value: settings.suggestionsEnabled,
+          accent: accent,
+          onChanged: (v) => context.read<SettingsCubit>().toggleSuggestions(v),
+        ),
+        const SizedBox(height: 16),
+        _ToggleRow(
+          label: 'Voice mode',
+          value: settings.voiceEnabled,
+          accent: accent,
+          onChanged: (v) => context.read<SettingsCubit>().toggleVoice(v),
+        ),
+        const SizedBox(height: 16),
+        _ToneSelector(tone: settings.tone, accent: accent),
+      ],
+    );
+  }
+}
+
+class _ToggleRow extends StatelessWidget {
+  final String label;
+  final bool value;
+  final AccentColors accent;
+  final ValueChanged<bool> onChanged;
+
+  const _ToggleRow({
+    required this.label,
+    required this.value,
+    required this.accent,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            color: Colors.white.withValues(alpha: 0.87),
+          ),
+        ),
+        const Spacer(),
+        Switch(
+          value: value,
+          onChanged: onChanged,
+          activeColor: accent.solid, // ignore: deprecated_member_use
+          activeTrackColor: accent.glow.withValues(alpha: 0.5),
+          inactiveThumbColor: Colors.white.withValues(alpha: 0.4),
+          inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
+        ),
+      ],
+    );
+  }
+}
+
+class _ToneSelector extends StatelessWidget {
+  final ResponseTone tone;
+  final AccentColors accent;
+
+  const _ToneSelector({required this.tone, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(
+          'Response tone',
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            color: Colors.white.withValues(alpha: 0.87),
+          ),
+        ),
+        const Spacer(),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.07),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: ResponseTone.values.map((t) {
+              final isActive = t == tone;
+              final label = t.name[0].toUpperCase() + t.name.substring(1);
+              return GestureDetector(
+                onTap: () => context.read<SettingsCubit>().setTone(t),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: isActive ? accent.solid : Colors.transparent,
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                  child: Text(
+                    label,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: isActive ? kOnAccent : Colors.white.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _NotificationSection extends StatelessWidget {
+  final SettingsState settings;
+  final AccentColors accent;
+
+  const _NotificationSection({required this.settings, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _ToggleRow(
+          label: 'Reminders',
+          value: settings.notificationsEnabled,
+          accent: accent,
+          onChanged: (v) => context.read<SettingsCubit>().toggleNotifications(v),
+        ),
+        const SizedBox(height: 16),
+        Opacity(
+          opacity: settings.notificationsEnabled ? 1.0 : 0.35,
+          child: Column(
+            children: [
+              _TimeRow(
+                label: 'Quiet from',
+                time: settings.quietHoursStart,
+                accent: accent,
+                onTap: () async {
+                  if (!settings.notificationsEnabled) return;
+                  final picked = await showTimePicker(
+                    context: context,
+                    initialTime: settings.quietHoursStart,
+                  );
+                  if (picked != null && context.mounted) {
+                    context
+                        .read<SettingsCubit>()
+                        .setQuietHours(picked, settings.quietHoursEnd);
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+              _TimeRow(
+                label: 'Quiet until',
+                time: settings.quietHoursEnd,
+                accent: accent,
+                onTap: () async {
+                  if (!settings.notificationsEnabled) return;
+                  final picked = await showTimePicker(
+                    context: context,
+                    initialTime: settings.quietHoursEnd,
+                  );
+                  if (picked != null && context.mounted) {
+                    context
+                        .read<SettingsCubit>()
+                        .setQuietHours(settings.quietHoursStart, picked);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TimeRow extends StatelessWidget {
+  final String label;
+  final TimeOfDay time;
+  final AccentColors accent;
+  final VoidCallback onTap;
+
+  const _TimeRow({
+    required this.label,
+    required this.time,
+    required this.accent,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              color: Colors.white.withValues(alpha: 0.87),
+            ),
+          ),
+          const Spacer(),
+          Text(
+            time.format(context),
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: accent.solid,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
