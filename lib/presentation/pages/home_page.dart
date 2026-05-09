@@ -8,6 +8,8 @@ import '../../core/theme/colors.dart';
 import '../bloc/halo_bloc.dart';
 import '../bloc/halo_event.dart';
 import '../bloc/halo_state.dart';
+import '../bloc/settings_cubit.dart';
+import '../bloc/settings_state.dart';
 import '../widgets/halo_nav_bar.dart';
 import '../widgets/orb_widget.dart';
 
@@ -124,21 +126,27 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    if (suggestions.isNotEmpty)
-                      SizedBox(
-                        height: 44,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: suggestions.length,
-                          separatorBuilder: (context, _) => const SizedBox(width: 8),
-                          itemBuilder: (context, i) => _SuggestionChip(
-                            label: suggestions[i],
-                            onTap: () => context
-                                .read<HaloBloc>()
-                                .add(const NavigateToScreen(HaloScreen.listen)),
+                    BlocBuilder<SettingsCubit, SettingsState>(
+                      builder: (context, settings) {
+                        if (!settings.suggestionsEnabled || suggestions.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+                        return SizedBox(
+                          height: 44,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: suggestions.length,
+                            separatorBuilder: (context, _) => const SizedBox(width: 8),
+                            itemBuilder: (context, i) => _SuggestionChip(
+                              label: suggestions[i],
+                              onTap: () => context
+                                  .read<HaloBloc>()
+                                  .add(const NavigateToScreen(HaloScreen.listen)),
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
+                    ),
                     const SizedBox(height: 10),
                     GestureDetector(
                       onTap: () => context
