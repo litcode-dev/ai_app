@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/theme/colors.dart';
+import '../../core/theme/halo_theme.dart';
 import '../bloc/halo_bloc.dart';
 import '../bloc/halo_event.dart';
 import '../bloc/halo_state.dart';
@@ -17,6 +18,7 @@ class NotePage extends StatelessWidget {
     return BlocBuilder<HaloBloc, HaloState>(
       builder: (context, state) {
         final accent = getAccent(state.accent);
+        final t = Theme.of(context).extension<HaloTheme>()!;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -26,9 +28,9 @@ class NotePage extends StatelessWidget {
                 onTap: () => context
                     .read<HaloBloc>()
                     .add(const NavigateToScreen(HaloScreen.listen)),
-                child: const Padding(
-                  padding: EdgeInsets.all(8),
-                  child: HaloIcon(name: 'back', size: 26),
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: HaloIcon(name: 'back', size: 26, color: t.onSurface),
                 ),
               ),
             ),
@@ -71,7 +73,7 @@ class NotePage extends StatelessWidget {
                                   height: 1.42,
                                   fontWeight: FontWeight.w400,
                                   letterSpacing: -0.3,
-                                  color: Colors.white,
+                                  color: t.onSurface,
                                 ),
                               ),
                             ),
@@ -167,8 +169,9 @@ class _IOSKeyboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const keyBg = Color(0x38FFFFFF);
-    const glyphColor = Color(0xB3FFFFFF);
+    final t = Theme.of(context).extension<HaloTheme>()!;
+    final keyBg = t.muted(0.22);
+    final glyphColor = t.muted(0.70);
 
     Widget key(String label, {double? width, bool isReturn = false, bool isSpecial = false}) {
       return Container(
@@ -177,7 +180,7 @@ class _IOSKeyboard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isReturn
               ? const Color(0xFF0088FF)
-              : (isSpecial ? const Color(0x1AFFFFFF) : keyBg),
+              : (isSpecial ? t.muted(0.10) : keyBg),
           borderRadius: BorderRadius.circular(8),
           boxShadow: const [
             BoxShadow(color: Color(0x13000000), offset: Offset(0, 1), blurRadius: 0, spreadRadius: 1),
@@ -217,9 +220,9 @@ class _IOSKeyboard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
+        color: t.cardSurface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-        border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.08))),
+        border: Border(top: BorderSide(color: t.borderColor)),
       ),
       padding: const EdgeInsets.fromLTRB(6.5, 11, 6.5, 0),
       child: Column(
@@ -235,7 +238,7 @@ class _IOSKeyboard extends StatelessWidget {
                         Container(
                           width: 1,
                           height: 25,
-                          color: Colors.white.withValues(alpha: 0.12),
+                          color: t.muted(0.12),
                         ),
                       Expanded(
                         child: Center(
@@ -243,7 +246,7 @@ class _IOSKeyboard extends StatelessWidget {
                             e.value,
                             style: GoogleFonts.inter(
                               fontSize: 16,
-                              color: Colors.white.withValues(alpha: 0.6),
+                              color: t.muted(0.6),
                             ),
                           ),
                         ),
