@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/theme/colors.dart';
+import '../../core/theme/halo_theme.dart';
 import '../bloc/halo_bloc.dart';
 import '../bloc/halo_event.dart';
 import '../bloc/halo_state.dart';
@@ -73,6 +74,7 @@ class _HomePageState extends State<HomePage> {
     return BlocBuilder<HaloBloc, HaloState>(
       builder: (context, state) {
         final accent = getAccent(state.accent);
+        final t = Theme.of(context).extension<HaloTheme>()!;
         final suggestions = state.suggestions;
         return Column(
           children: [
@@ -90,7 +92,7 @@ class _HomePageState extends State<HomePage> {
                             _prompt,
                             style: GoogleFonts.inter(
                               fontSize: 14,
-                              color: Colors.white.withValues(alpha: 0.55),
+                              color: t.muted(0.55),
                               letterSpacing: 0.1,
                             ),
                           ),
@@ -155,9 +157,9 @@ class _HomePageState extends State<HomePage> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.06),
+                          color: t.cardSurface,
                           borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                          border: Border.all(color: t.borderColor),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -165,14 +167,14 @@ class _HomePageState extends State<HomePage> {
                             HaloIcon(
                               name: 'kbd',
                               size: 18,
-                              color: Colors.white.withValues(alpha: 0.78),
+                              color: t.muted(0.78),
                             ),
                             const SizedBox(width: 8),
                             Text(
                               'Use keyboard',
                               style: GoogleFonts.inter(
                                 fontSize: 14,
-                                color: Colors.white.withValues(alpha: 0.78),
+                                color: t.muted(0.78),
                               ),
                             ),
                           ],
@@ -240,18 +242,19 @@ class _SuggestionChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context).extension<HaloTheme>()!;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.06),
+          color: t.cardSurface,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          border: Border.all(color: t.borderColor),
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(fontSize: 13, color: Colors.white.withValues(alpha: 0.78)),
+          style: GoogleFonts.inter(fontSize: 13, color: t.muted(0.78)),
         ),
       ),
     );
